@@ -1,0 +1,15 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "regions": ["gru1"],
+  "headers": [
+    {
+      "source": "/api/payment/webhook",
+      "headers": [
+        { "key": "x-vercel-skip-middleware", "value": "1" }
+      ]
+    }
+  ]
+}
