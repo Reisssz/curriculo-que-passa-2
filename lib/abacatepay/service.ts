@@ -68,7 +68,7 @@ export async function createCreditPackCharge(
   userId: string,
   email: string
 ): Promise<ChargeResult> {
-  const appUrl    = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const appUrl    = process.env.NEXT_PUBLIC_APP_URL || "https://curriculo-que-passa-2-git-main-reissszs-projects.vercel.app";
   const credits   = Number(process.env.CREDITS_PACK_15_AMOUNT) || 15;
   const productId = process.env.ABACATEPAY_PRODUCT_ID!;
 
