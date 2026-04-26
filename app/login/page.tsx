@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
   const supabase = createClient();
   const router = useRouter();
