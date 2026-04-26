@@ -19,6 +19,24 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
+  const [resetMode, setResetMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) { toast.error("Digite seu e-mail primeiro."); return; }
+    setLoading(true);
+
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    });
+
+    // Sempre mostra sucesso por segurança (não revela se email existe ou não)
+    // mas a mensagem deixa claro o que acontece se existir
+    setResetSent(true);
+    setLoading(false);
+  }
+
   async function handleGoogleLogin() {
     setGoogleLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
@@ -39,6 +57,21 @@ export default function LoginPage() {
     setLoading(true);
 
     if (mode === "signup") {
+      // Tenta login primeiro para verificar se email já existe
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email,
+        password: "check-only-fake-password-123",
+      });
+
+      // Se o erro for de credenciais inválidas (não "invalid email"), o email existe
+      if (loginError?.message.includes("Invalid login credentials")) {
+        toast.error("Este e-mail já possui uma conta. Faça login.");
+        setMode("login");
+        setLoading(false);
+        return;
+      }
+
+      // Email não existe, pode criar
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -46,10 +79,9 @@ export default function LoginPage() {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
         },
       });
+
       if (error) {
-        toast.error(error.message === "User already registered"
-          ? "E-mail já cadastrado. Faça login."
-          : "Erro ao criar conta. Tente novamente.");
+        toast.error("Erro ao criar conta. Tente novamente.");
       } else {
         setEmailSent(true);
       }
@@ -69,7 +101,58 @@ export default function LoginPage() {
     }
     setLoading(false);
   }
+  if (resetMode) {
+    return (
+      <div className="min-h-screen bg-brand-offwhite flex items-center justify-center px-4">
+        <div className="w-full max-w-md page-enter">
+          <div className="text-center mb-8">
+            <Link href="/" className="inline-flex items-center gap-2 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-brand-green flex items-center justify-center">
+                <span className="text-white font-display font-bold">CQ</span>
+              </div>
+              <span className="font-display font-bold text-xl text-gray-900">Currículo que Passa</span>
+            </Link>
+            <h1 className="font-display font-bold text-2xl text-gray-900">Redefinir senha</h1>
+            <p className="text-gray-500 text-sm mt-2">Digite seu e-mail para receber o link</p>
+          </div>
 
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">E-mail</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="seu@email.com"
+                  required
+                  className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm
+                            transition-all duration-200 focus:border-brand-green"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-brand-green text-white font-display font-bold py-3.5 rounded-xl
+                          hover:bg-green-600 transition-colors disabled:opacity-50 flex items-center
+                          justify-center gap-2"
+              >
+                {loading ? (
+                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                ) : "Enviar link de redefinição"}
+              </button>
+            </form>
+            <button
+              onClick={() => setResetMode(false)}
+              className="mt-4 w-full text-sm text-gray-400 hover:text-gray-700 transition-colors"
+            >
+              ← Voltar ao login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (emailSent) {
     return (
       <div className="min-h-screen bg-brand-offwhite flex items-center justify-center px-4">
@@ -89,6 +172,36 @@ export default function LoginPage() {
             className="mt-6 text-sm text-brand-green font-medium hover:underline"
           >
             ← Voltar
+          </button>
+        </div>
+      </div>
+    );
+  }
+  if (resetSent) {
+    return (
+      <div className="min-h-screen bg-brand-offwhite flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center page-enter">
+          <div className="w-16 h-16 bg-brand-green-pale rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">📧</span>
+          </div>
+          <h2 className="font-display font-bold text-2xl text-gray-900 mb-3">
+            Verifique seu e-mail
+          </h2>
+          <p className="text-gray-500 leading-relaxed">
+            Se existe uma conta cadastrada com{" "}
+            <strong className="text-gray-700">{email}</strong>,
+            você receberá um link para redefinir sua senha nos próximos minutos.
+          </p>
+          <div className="mt-5 bg-brand-green-pale rounded-xl p-4 text-sm text-green-800 text-left space-y-1">
+            <p>✅ Verifique sua caixa de entrada</p>
+            <p>✅ Verifique a pasta de spam</p>
+            <p>✅ O link expira em 1 hora</p>
+          </div>
+          <button
+            onClick={() => { setResetSent(false); setResetMode(false); }}
+            className="mt-6 text-sm text-brand-green font-medium hover:underline"
+          >
+            ← Voltar ao login
           </button>
         </div>
       </div>
@@ -202,6 +315,18 @@ export default function LoginPage() {
                   </p>
                 </div>
               )}
+
+              {mode === "login" && (
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => setResetMode(true)}
+                      className="text-xs text-brand-green hover:underline"
+                    >
+                      Esqueci minha senha
+                    </button>
+                  </div>
+                )}
 
               <button
                 type="submit"
