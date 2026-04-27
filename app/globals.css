@@ -193,6 +193,25 @@ textarea:focus, input:focus {
 .hp-hero {
   position: relative;
   overflow: hidden;
+
+  background-image: url('/hero-bg.jpg');
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+}
+.hp-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    180deg,
+    rgba(242, 242, 242, 0.92) 0%,
+    rgba(242, 242, 242, 0.85) 40%,
+    rgba(242, 242, 242, 0.95) 100%
+  );
+
+  z-index: 0;
 }
 .hp-orb {
   position: absolute;
