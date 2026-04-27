@@ -24,9 +24,10 @@ export default function ResultadoPage() {
     setPdfLoading(true);
     try {
       const { generateResumePDF } = await import("@/lib/pdf/generator");
-      await generateResumePDF(result.improved_resume);
+      await generateResumePDF(result.resume_structured);
       toast.success("PDF gerado com sucesso!");
-    } catch {
+    } catch (e) {
+      console.error(e);
       toast.error("Erro ao gerar PDF. Tente copiar o texto.");
     } finally {
       setPdfLoading(false);
@@ -84,6 +85,34 @@ export default function ResultadoPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
             <ScoreRing score={result.match_score} label={result.score_label} size={180} />
+            {/* Score comparison */}
+            <div className="flex items-center gap-4 mt-4 flex-wrap justify-center md:justify-start">
+              <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-4 py-2">
+                <span className="text-sm text-gray-500">Score original:</span>
+                <span className="font-display font-bold text-gray-700">{result.match_score}/100</span>
+              </div>
+              <svg className="w-4 h-4 text-brand-green" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+              <div className="flex items-center gap-2 bg-brand-green-pale rounded-xl px-4 py-2">
+                <span className="text-sm text-green-700">Score otimizado:</span>
+                <span className="font-display font-bold text-brand-green">{result.optimized_score}/100</span>
+                <span className="text-xs font-bold text-brand-green">
+                  +{(result.optimized_score || 0) - result.match_score} pts
+                </span>
+              </div>
+            </div>
+
+            {/* Inserted keywords badge */}
+            {result.inserted_keywords?.length > 0 && (
+              <div className="mt-3 flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-3">
+                <span className="text-base flex-shrink-0">✨</span>
+                <p className="text-xs text-blue-700">
+                  <strong>{result.inserted_keywords.length} keywords inseridas</strong> no currículo otimizado:{" "}
+                  {result.inserted_keywords.join(", ")}
+                </p>
+              </div>
+            )}
             <div className="flex-1 text-center md:text-left">
               <h1 className="font-display font-extrabold text-3xl text-gray-900 mb-2">
                 Score ATS: <span style={{ color: scoreColor }}>{result.match_score}/100</span>
