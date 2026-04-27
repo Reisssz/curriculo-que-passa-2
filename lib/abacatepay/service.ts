@@ -1,6 +1,5 @@
 import crypto from "crypto";
 
-// A v2 usa base URL diferente para produtos
 const BASE_V1 = "https://api.abacatepay.com/v1";
 const BASE_V2 = "https://api.abacatepay.com/v2";
 
@@ -16,22 +15,15 @@ function headers() {
   };
 }
 
-/**
- * Garante que o produto existe na AbacatePay.
- * Se ABACATEPAY_PRODUCT_ID estiver no env, usa direto.
- * Caso contrário, cria o produto via API e loga o ID para
- * você adicionar ao .env (evita recriar a cada chamada).
- */
 async function ensureProductId(): Promise<string> {
-  // Se já tiver o ID configurado, usa direto
   if (process.env.ABACATEPAY_PRODUCT_ID) {
     return process.env.ABACATEPAY_PRODUCT_ID;
   }
 
+  // Preço padrão agora R$ 25,00 (2500 centavos)
   const price   = Number(process.env.CREDITS_PACK_15_PRICE)  || 2500;
   const credits = Number(process.env.CREDITS_PACK_15_AMOUNT) || 15;
 
-  // Criar o produto via API
   const res = await fetch(`${BASE_V2}/products/create`, {
     method: "POST",
     headers: headers(),
@@ -51,7 +43,6 @@ async function ensureProductId(): Promise<string> {
   const json = await res.json();
   const productId = (json.data ?? json).id;
 
-  // Logar para o dev adicionar ao .env e não recriar sempre
   console.warn(
     `[AbacatePay] Produto criado: ${productId}\n` +
     `👉 Adicione ao .env: ABACATEPAY_PRODUCT_ID=${productId}`
@@ -60,17 +51,13 @@ async function ensureProductId(): Promise<string> {
   return productId;
 }
 
-/**
- * Cria um checkout no AbacatePay v2.
- * Usa o produto pré-cadastrado (ou cria automaticamente na primeira vez).
- */
 export async function createCreditPackCharge(
   userId: string,
   email: string
 ): Promise<ChargeResult> {
   const appUrl    = process.env.NEXT_PUBLIC_APP_URL || "https://curriculo-que-passa-2.vercel.app/";
   const credits   = Number(process.env.CREDITS_PACK_15_AMOUNT) || 15;
-  const productId = process.env.ABACATEPAY_PRODUCT_ID!;
+  const productId = await ensureProductId(); // <- usa ensureProductId para nunca ficar undefined
 
   const payload = {
     items: [{ id: productId, quantity: 1 }],
@@ -87,17 +74,13 @@ export async function createCreditPackCharge(
 
   console.log("[AbacatePay] Payload:", JSON.stringify(payload, null, 2));
 
-  // Tentar v1 e v2
-  for (const base of ["https://api.abacatepay.com/v1", "https://api.abacatepay.com/v2"]) {
+  for (const base of [BASE_V1, BASE_V2]) {
     const url = `${base}/checkouts/create`;
     console.log("[AbacatePay] Tentando:", url);
 
     const res = await fetch(url, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.ABACATEPAY_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+      headers: headers(),
       body: JSON.stringify(payload),
     });
 
@@ -113,10 +96,6 @@ export async function createCreditPackCharge(
   throw new Error("AbacatePay: ambos endpoints falharam — veja os logs acima");
 }
 
-/**
- * Verifica assinatura HMAC-SHA256 do webhook.
- * AbacatePay usa a API_KEY como secret e encoda em base64.
- */
 export function verifyWebhookSignature(
   rawBody: string,
   signatureFromHeader: string
