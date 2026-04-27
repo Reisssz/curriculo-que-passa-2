@@ -109,10 +109,7 @@ export default function LoginPage() {
       <div className="min-h-screen bg-brand-offwhite flex items-center justify-center px-4">
         <div className="w-full max-w-md page-enter">
           <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-brand-green flex items-center justify-center">
-                <span className="text-white font-display font-bold">CQ</span>
-              </div>
+            <Link href="/" className="inline-flex items-center gap-2 mb-6"> 
               <span className="font-display font-bold text-xl text-gray-900">Currículo que Passa</span>
             </Link>
             <h1 className="font-display font-bold text-2xl text-gray-900">Redefinir senha</h1>
@@ -217,9 +214,6 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-brand-green flex items-center justify-center">
-              <span className="text-white font-display font-bold">CQ</span>
-            </div>
             <span className="font-display font-bold text-xl text-gray-900">Currículo que Passa</span>
           </Link>
           <h1 className="font-display font-bold text-2xl text-gray-900">
