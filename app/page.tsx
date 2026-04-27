@@ -16,14 +16,23 @@ export default function HomePage() {
 
       {/* ── Hero ── */}
       <section className="hp-hero">
+        {/* VIDEO BACKGROUND */}
+        <video
+          className="hp-hero-video"
+          autoPlay
+          loop
+          muted
+          playsInline
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+        </video>
+
+        {/* overlay opcional */}
+        <div className="hp-hero-overlay" />
         <div className="hp-orb hp-orb-1" />
         <div className="hp-orb hp-orb-2" />
 
         <div className="hp-hero-inner">
-          <div className="hp-badge hp-enter-1">
-            <span className="hp-badge-dot" />
-            Powered by IA · 1 análise grátis para novos usuários
-          </div>
 
           <h1 className="hp-headline hp-enter-2">
             Seu currículo{" "}

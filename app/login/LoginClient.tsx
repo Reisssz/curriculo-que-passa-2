@@ -209,8 +209,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-offwhite flex items-center justify-center px-4">
-      <div className="w-full max-w-md page-enter">
+    <div className="relative min-h-screen flex items-center justify-center px-4 overflow-hidden">
+  
+      {/* VIDEO BACKGROUND */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/login-video.mp4" type="video/mp4" />
+      </video>
+
+      {/* CONTEÚDO */}
+      <div className="relative z-10 w-full max-w-md page-enter">
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">

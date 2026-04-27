@@ -193,25 +193,38 @@ textarea:focus, input:focus {
 .hp-hero {
   position: relative;
   overflow: hidden;
-
-  background-image: url('/hero-bg.jpg');
-  background-size: cover;
-  background-position: center right;
-  background-repeat: no-repeat;
 }
-.hp-hero::before {
-  content: '';
+
+/* VIDEO */
+.hp-hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  transform: translate(-50%, -50%);
+  z-index: 0;
+}
+
+/* OVERLAY (ESSENCIAL pra legibilidade) */
+.hp-hero-overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
 
   background: linear-gradient(
-    180deg,
-    rgba(242, 242, 242, 0.92) 0%,
-    rgba(242, 242, 242, 0.85) 40%,
-    rgba(242, 242, 242, 0.95) 100%
+    to bottom,
+    rgba(245, 246, 242, 0.85),
+    rgba(245, 246, 242, 0.95)
   );
+}
 
-  z-index: 0;
+/* garante que o conteúdo fique acima */
+.hp-hero-inner {
+  position: relative;
+  z-index: 2;
 }
 .hp-orb {
   position: absolute;
